@@ -200,22 +200,72 @@ function fmtTime(d) {
 const dateEl = document.getElementById('currentDate');
 if (dateEl) dateEl.textContent = fmtDate();
 
-// ── 市场指数（示例数据，可替换为行情 API）────────────────────
+// ── 市场行情（东方财富实时接口，支持 CORS）──────────────────
 
-(function renderMarket() {
-  const data = [
-    { id: 'sh',   value: '3,341.72',  change: '+27.45',  pct: '+0.83%', up: true  },
-    { id: 'sz',   value: '10,682.90', change: '+98.12',  pct: '+0.93%', up: true  },
-    { id: 'cyb',  value: '2,174.33',  change: '-8.56',   pct: '-0.39%', up: false },
-    { id: 'gold', value: '624.50',    change: '+3.20',   pct: '+0.51%', up: true  },
+function setMarketCard(id, value, change, pct, up) {
+  const v = document.getElementById(`${id}-value`);
+  const c = document.getElementById(`${id}-change`);
+  if (v) { v.textContent = value; v.className = `market-value ${up ? 'rise' : 'fall'}`; }
+  if (c) { c.textContent = `${change}  ${pct}`; c.className = `market-change ${up ? 'rise' : 'fall'}`; }
+}
+
+function setMarketState(id, msg) {
+  const v = document.getElementById(`${id}-value`);
+  const c = document.getElementById(`${id}-change`);
+  if (v) { v.textContent = '—'; v.className = 'market-value flat'; }
+  if (c) { c.textContent = msg; c.className = 'market-change flat'; }
+}
+
+function fmtN(n, d = 2) {
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+// 东方财富行情接口（支持跨域，无需代理）
+// f43=当前价×100  f44=昨收×100  f169=涨跌额×100  f170=涨跌幅×100
+async function fetchEM(secid) {
+  const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f44,f169,f170&ut=fa5fd1943c7b386f172d6893dbfba10b`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(7000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  if (!json.data) throw new Error('no data');
+  const { f43, f44, f169, f170 } = json.data;
+  // 非交易时段 f43 可能为 0，回退到昨收价
+  const price  = (f43 && f43 !== 0) ? f43 / 100 : f44 / 100;
+  const change = f169 / 100;
+  const pct    = f170 / 100;
+  return { price, change, pct };
+}
+
+async function loadMarketData() {
+  ['sh', 'sz', 'cyb', 'gold'].forEach(id => setMarketState(id, '获取中...'));
+
+  // secid 说明：
+  //   1.000001 = 上证指数
+  //   0.399001 = 深证成指
+  //   0.399006 = 创业板指
+  //   118.AUTD = 黄金延期（上交所，元/克，含当前实时价）
+  const MARKETS = [
+    { id: 'sh',   secid: '1.000001'  },
+    { id: 'sz',   secid: '0.399001'  },
+    { id: 'cyb',  secid: '0.399006'  },
+    { id: 'gold', secid: '118.AUTD'  },
   ];
-  data.forEach(({ id, value, change, pct, up }) => {
-    const v = document.getElementById(`${id}-value`);
-    const c = document.getElementById(`${id}-change`);
-    if (v) { v.textContent = value; v.className = `market-value ${up ? 'rise' : 'fall'}`; }
-    if (c) { c.textContent = `${change}  ${pct}`; c.className = `market-change ${up ? 'rise' : 'fall'}`; }
+
+  const results = await Promise.allSettled(MARKETS.map(m => fetchEM(m.secid)));
+
+  results.forEach((res, i) => {
+    const { id } = MARKETS[i];
+    if (res.status === 'fulfilled') {
+      const { price, change, pct } = res.value;
+      const up = change >= 0;
+      setMarketCard(id, fmtN(price), `${up?'+':''}${fmtN(change)}`, `${up?'+':''}${fmtN(pct)}%`, up);
+    } else {
+      setMarketState(id, '暂不可用');
+    }
   });
-})();
+}
+
+loadMarketData();
 
 // ── 主题检测（从标题 / 摘要中识别关键词）───────────────────────
 
