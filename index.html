@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>刘海峰 · A股资讯 — 新能源 · AI · 黄金</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">📈</span>
+        <span class="logo-text">刘海峰 · A股资讯</span>
+      </div>
+      <div class="header-date" id="currentDate"></div>
+    </div>
+  </header>
+
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" data-tab="all">
+        <span>全部</span>
+      </button>
+      <button class="tab-btn" data-tab="energy">
+        <span class="tab-icon">⚡</span>
+        <span>新能源</span>
+      </button>
+      <button class="tab-btn" data-tab="ai">
+        <span class="tab-icon">🤖</span>
+        <span>AI 科技</span>
+      </button>
+      <button class="tab-btn" data-tab="gold">
+        <span class="tab-icon">🪙</span>
+        <span>黄金</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- 市场概览 -->
+    <section class="market-overview">
+      <div class="market-cards">
+        <div class="market-card" id="card-sh">
+          <div class="market-label">上证指数</div>
+          <div class="market-value" id="sh-value">—</div>
+          <div class="market-change" id="sh-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-sz">
+          <div class="market-label">深证成指</div>
+          <div class="market-value" id="sz-value">—</div>
+          <div class="market-change" id="sz-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-cyb">
+          <div class="market-label">创业板指</div>
+          <div class="market-value" id="cyb-value">—</div>
+          <div class="market-change" id="cyb-change">加载中...</div>
+        </div>
+        <div class="market-card gold-card" id="card-gold">
+          <div class="market-label">黄金现货 (元/克)</div>
+          <div class="market-value" id="gold-value">—</div>
+          <div class="market-change" id="gold-change">加载中...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 快速导航 -->
+    <section class="quick-links-section">
+      <h2 class="section-title">行情网站直达</h2>
+      <div class="quick-links">
+        <a class="qlink qlink-primary" href="https://finance.sina.com.cn/stock/" target="_blank" rel="noopener">
+          <span class="qlink-icon">📊</span>
+          <span class="qlink-name">新浪财经</span>
+          <span class="qlink-desc">综合行情资讯</span>
+        </a>
+        <a class="qlink qlink-primary" href="https://www.eastmoney.com/" target="_blank" rel="noopener">
+          <span class="qlink-icon">💹</span>
+          <span class="qlink-name">东方财富</span>
+          <span class="qlink-desc">个股行情分析</span>
+        </a>
+        <a class="qlink qlink-primary" href="https://www.10jqka.com.cn/" target="_blank" rel="noopener">
+          <span class="qlink-icon">🔍</span>
+          <span class="qlink-name">同花顺</span>
+          <span class="qlink-desc">选股研究工具</span>
+        </a>
+        <a class="qlink" href="https://finance.sina.com.cn/money/gold/" target="_blank" rel="noopener">
+          <span class="qlink-icon">🪙</span>
+          <span class="qlink-name">黄金行情</span>
+          <span class="qlink-desc">新浪黄金专区</span>
+        </a>
+        <a class="qlink" href="https://www.cninfo.com.cn/" target="_blank" rel="noopener">
+          <span class="qlink-icon">📋</span>
+          <span class="qlink-name">巨潮资讯</span>
+          <span class="qlink-desc">官方公告披露</span>
+        </a>
+        <a class="qlink" href="https://www.sse.com.cn/" target="_blank" rel="noopener">
+          <span class="qlink-icon">🏛️</span>
+          <span class="qlink-name">上交所官网</span>
+          <span class="qlink-desc">官方规则公告</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 新闻资讯 -->
+    <section class="news-section">
+      <div class="news-header">
+        <h2 class="section-title">今日资讯</h2>
+        <div class="news-header-right">
+          <span class="update-info">
+            更新于 <strong id="updateTime">—</strong>
+            &nbsp;·&nbsp;
+            下次更新: <span id="nextUpdate">—</span>
+          </span>
+          <button class="refresh-btn" id="refreshBtn">
+            <span>🔄</span> 手动刷新
+          </button>
+        </div>
+      </div>
+
+      <!-- 板块一：最新快讯 -->
+      <div class="news-type-section" id="section-breaking">
+        <div class="news-type-header breaking-header">
+          <span class="type-icon">⚡</span>
+          <span class="type-title">最新快讯</span>
+          <span class="type-desc">实时重要消息</span>
+        </div>
+        <div class="news-grid" id="grid-breaking"></div>
+      </div>
+
+      <!-- 板块二：行业动态 -->
+      <div class="news-type-section" id="section-industry">
+        <div class="news-type-header industry-header">
+          <span class="type-icon">📊</span>
+          <span class="type-title">行业动态</span>
+          <span class="type-desc">公司 · 政策 · 市场数据</span>
+        </div>
+        <div class="news-grid" id="grid-industry"></div>
+      </div>
+
+      <!-- 板块三：深度分析 -->
+      <div class="news-type-section" id="section-analysis">
+        <div class="news-type-header analysis-header">
+          <span class="type-icon">🔬</span>
+          <span class="type-title">深度分析</span>
+          <span class="type-desc">研报 · 策略 · 专业解读</span>
+        </div>
+        <div class="news-grid" id="grid-analysis"></div>
+      </div>
+    </section>
+
+    <!-- 投资日历 -->
+    <section class="calendar-section">
+      <h2 class="section-title">关注要点</h2>
+      <div class="focus-list">
+        <div class="focus-item focus-energy">
+          <div class="focus-tag">⚡ 新能源</div>
+          <ul class="focus-points">
+            <li>国家能源局政策动态</li>
+            <li>宁德时代 / 比亚迪 / 阳光电源季报</li>
+            <li>光伏、储能装机数据</li>
+            <li>电动车月度销量数据（月初发布）</li>
+          </ul>
+        </div>
+        <div class="focus-item focus-ai">
+          <div class="focus-tag">🤖 AI 科技</div>
+          <ul class="focus-points">
+            <li>DeepSeek / 百度文心 等大模型动态</li>
+            <li>科技部 AI 政策与算力规划</li>
+            <li>海光信息 / 寒武纪 / 金山办公 业绩</li>
+            <li>美联储利率决议对科技股影响</li>
+          </ul>
+        </div>
+        <div class="focus-item focus-gold">
+          <div class="focus-tag">🪙 黄金</div>
+          <ul class="focus-points">
+            <li>美元指数与美债收益率走势</li>
+            <li>地缘政治风险事件</li>
+            <li>中国人民银行黄金储备数据</li>
+            <li>山东黄金 / 赤峰黄金 / 中金黄金 业绩</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>本站仅供信息参考，不构成投资建议。投资有风险，入市需谨慎。</p>
+    <p class="footer-update">最后更新：<span id="lastUpdate"></span></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
