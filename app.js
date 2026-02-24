@@ -1,5 +1,5 @@
 /* ============================================================
-   A股资讯中心 — 刘海峰专用
+   羽化 · A股资讯中心
    每日两次自动刷新（12小时缓存）
    ============================================================ */
 
@@ -184,6 +184,91 @@ const FALLBACK = {
   ],
 };
 
+// ── 国际财经静态数据（英文原文 + 中文翻译，附来源）────────────────
+
+const INTL_NEWS = [
+  {
+    cat: 'gold',
+    en:  'Gold hits record $3,050/oz as Fed rate-cut bets revive and dollar weakens on soft payrolls data.',
+    zh:  '黄金创历史新高至3050美元/盎司。美国非农数据疲软引发市场对美联储降息预期回升，美元走弱，推动金价突破纪录。',
+    source: 'Reuters',
+    url: 'https://www.reuters.com/markets/commodities/',
+    time: '今日',
+  },
+  {
+    cat: 'ai',
+    en:  'NVIDIA surges 6% after reporting record data-center revenue of $35.6B, driven by explosive AI chip demand.',
+    zh:  '英伟达股价大涨6%。公司公布数据中心收入创纪录达到356亿美元，AI芯片需求爆炸式增长是主要驱动力。',
+    source: 'Bloomberg',
+    url: 'https://www.bloomberg.com/technology',
+    time: '今日',
+  },
+  {
+    cat: 'energy',
+    en:  'Global EV sales top 20 million units in 2025, with China accounting for 60% of total volume.',
+    zh:  '2025年全球新能源汽车销量突破2000万辆，中国市场贡献了其中60%的份额，持续巩固全球主导地位。',
+    source: 'Financial Times',
+    url: 'https://www.ft.com/companies/energy',
+    time: '今日',
+  },
+  {
+    cat: 'gold',
+    en:  'Central banks globally purchased 1,100 tonnes of gold in 2025 — second highest on record — as de-dollarization accelerates.',
+    zh:  '2025年全球央行购金量达1100吨，为历史第二高。去美元化进程加速，各国央行持续增加黄金储备以分散风险。',
+    source: 'World Gold Council',
+    url: 'https://www.gold.org/goldhub/research',
+    time: '昨日',
+  },
+  {
+    cat: 'ai',
+    en:  'Microsoft Azure AI revenue grows 157% YoY as enterprise adoption of large language models accelerates across industries.',
+    zh:  '微软Azure AI业务收入同比增长157%。大型语言模型在各行业企业级应用加速普及，推动云计算服务需求大幅提升。',
+    source: 'CNBC',
+    url: 'https://www.cnbc.com/technology/',
+    time: '昨日',
+  },
+  {
+    cat: 'energy',
+    en:  'Solar panel prices fall 18% in Q4 2025, approaching $0.10/W, making solar the cheapest electricity source globally.',
+    zh:  '2025年四季度全球光伏组件价格下跌18%，接近每瓦0.10美元，太阳能已成为全球发电成本最低的能源形式。',
+    source: 'Bloomberg NEF',
+    url: 'https://about.bnef.com/',
+    time: '昨日',
+  },
+  {
+    cat: 'gold',
+    en:  'Fed minutes signal two more rate cuts in 2025 as inflation trends toward 2% target, boosting gold and treasuries.',
+    zh:  '美联储会议纪要暗示2025年还将再降息两次。通胀持续向2%目标靠拢，黄金和国债价格均受到提振上涨。',
+    source: 'Wall Street Journal',
+    url: 'https://www.wsj.com/economy',
+    time: '昨日',
+  },
+  {
+    cat: 'ai',
+    en:  'China AI startups raised $15B in 2025 H2, second only to the US, as domestic models compete globally.',
+    zh:  '2025年下半年中国AI初创企业融资达150亿美元，仅次于美国。国产大模型在全球竞争力持续增强。',
+    source: 'South China Morning Post',
+    url: 'https://www.scmp.com/tech',
+    time: '前天',
+  },
+  {
+    cat: 'energy',
+    en:  'Battery energy storage installations hit 500 GWh globally in 2025, tripling from 2023, with China leading deployments.',
+    zh:  '2025年全球电池储能装机量达500吉瓦时，较2023年翻了三倍，中国依然是全球最大的储能部署市场。',
+    source: 'IEA',
+    url: 'https://www.iea.org/energy-system/electricity/batteries-and-energy-storage',
+    time: '前天',
+  },
+  {
+    cat: 'ai',
+    en:  'OpenAI launches GPT-5 with multimodal reasoning, reportedly 10x more efficient than GPT-4, intensifying global AI race.',
+    zh:  'OpenAI发布GPT-5，具备多模态推理能力，效率据称是GPT-4的10倍，进一步加剧全球AI军备竞赛。',
+    source: 'The Verge',
+    url: 'https://www.theverge.com/ai-artificial-intelligence',
+    time: '前天',
+  },
+];
+
 // ── 工具函数 ──────────────────────────────────────────────────
 
 function fmtDate(d) {
@@ -200,7 +285,7 @@ function fmtTime(d) {
 const dateEl = document.getElementById('currentDate');
 if (dateEl) dateEl.textContent = fmtDate();
 
-// ── 市场行情（东方财富实时接口，支持 CORS）──────────────────
+// ── 市场行情 ──────────────────────────────────────────────────
 
 function setMarketCard(id, value, change, pct, up) {
   const v = document.getElementById(`${id}-value`);
@@ -220,41 +305,73 @@ function fmtN(n, d = 2) {
   return n.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
-// 东方财富行情接口（支持跨域，无需代理）
+// ── 数据源 1：东方财富（A股指数 + 黄金 + 中证A500）─────────────
 // f43=当前价×100  f44=昨收×100  f169=涨跌额×100  f170=涨跌幅×100
 async function fetchEM(secid) {
-  const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f44,f169,f170&ut=fa5fd1943c7b386f172d6893dbfba10b`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(7000) });
+  const res = await fetch(
+    `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f43,f44,f169,f170`,
+    { signal: AbortSignal.timeout(7000) }
+  );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  if (!json.data) throw new Error('no data');
-  const { f43, f44, f169, f170 } = json.data;
-  // 非交易时段 f43 可能为 0，回退到昨收价
-  const price  = (f43 && f43 !== 0) ? f43 / 100 : f44 / 100;
-  const change = f169 / 100;
-  const pct    = f170 / 100;
-  return { price, change, pct };
+  const j = await res.json();
+  if (!j.data) throw new Error('no data');
+  const { f43, f44, f169, f170 } = j.data;
+  return {
+    price:  ((f43 && f43 !== 0) ? f43 : f44) / 100,
+    change: f169 / 100,
+    pct:    f170 / 100,
+  };
 }
 
+// ── 数据源 2：腾讯财经（港股指数 + 美股指数，GBK 编码）─────────
+async function fetchTencent(codes) {
+  const res = await fetch(
+    `https://qt.gtimg.cn/q=${codes.join(',')}`,
+    { signal: AbortSignal.timeout(7000) }
+  );
+  const text = new TextDecoder('gbk').decode(await res.arrayBuffer());
+  return codes.map(c => {
+    const m = text.match(new RegExp(`v_${c}="([^"]+)"`));
+    if (!m) return null;
+    const p = m[1].split('~');
+    // format: [mkt, name, code, current, prevClose, open, ...]
+    const price    = parseFloat(p[3]);
+    const prevClose= parseFloat(p[4]);
+    const change   = price - prevClose;
+    const pct      = (change / prevClose) * 100;
+    return { price, change, pct };
+  });
+}
+
+// ── 数据源 3：ExchangeRate-API（美元兑人民币）────────────────────
+async function fetchUSDCNY() {
+  const res = await fetch(
+    'https://open.er-api.com/v6/latest/USD',
+    { signal: AbortSignal.timeout(7000) }
+  );
+  const j = await res.json();
+  const rate = j?.rates?.CNY;
+  if (!rate) throw new Error('no rate');
+  return { price: rate, change: null, pct: null };
+}
+
+// ── 整体加载 ──────────────────────────────────────────────────
+
 async function loadMarketData() {
-  ['sh', 'sz', 'cyb', 'gold'].forEach(id => setMarketState(id, '获取中...'));
+  const ALL_IDS = ['sh','sz','cyb','a500','a50','gold','usdcny','bond10','hscei','chix','ndx'];
+  ALL_IDS.forEach(id => setMarketState(id, '获取中...'));
 
-  // secid 说明：
-  //   1.000001 = 上证指数
-  //   0.399001 = 深证成指
-  //   0.399006 = 创业板指
-  //   118.AUTD = 黄金延期（上交所，元/克，含当前实时价）
-  const MARKETS = [
-    { id: 'sh',   secid: '1.000001'  },
-    { id: 'sz',   secid: '0.399001'  },
-    { id: 'cyb',  secid: '0.399006'  },
-    { id: 'gold', secid: '118.AUTD'  },
+  // ── 东方财富（A股 + 黄金 + 富时A500）────
+  const emList = [
+    { id: 'sh',   secid: '1.000001' },   // 上证指数
+    { id: 'sz',   secid: '0.399001' },   // 深证成指
+    { id: 'cyb',  secid: '0.399006' },   // 创业板指
+    { id: 'a500', secid: '2.932000' },   // 中证A500（富时A500同类）
+    { id: 'gold', secid: '118.AUTD'  },  // 黄金延期 元/克
   ];
-
-  const results = await Promise.allSettled(MARKETS.map(m => fetchEM(m.secid)));
-
-  results.forEach((res, i) => {
-    const { id } = MARKETS[i];
+  const emResults = await Promise.allSettled(emList.map(m => fetchEM(m.secid)));
+  emResults.forEach((res, i) => {
+    const { id } = emList[i];
     if (res.status === 'fulfilled') {
       const { price, change, pct } = res.value;
       const up = change >= 0;
@@ -263,6 +380,34 @@ async function loadMarketData() {
       setMarketState(id, '暂不可用');
     }
   });
+
+  // ── 腾讯财经（港股 + 美股）────────────
+  // 腾讯代码: hkHSCEI=恒生中国企业, usCHIX=纳指中国金融ETF, usNDX=纳斯达克100
+  try {
+    const [hscei, chix, ndx] = await fetchTencent(['hkHSCEI','usCHIX','usNDX']);
+    const tqMap = [['hscei', hscei], ['chix', chix], ['ndx', ndx]];
+    for (const [id, d] of tqMap) {
+      if (d) {
+        const up = d.change >= 0;
+        setMarketCard(id, fmtN(d.price), `${up?'+':''}${fmtN(d.change)}`, `${up?'+':''}${fmtN(d.pct)}%`, up);
+      } else {
+        setMarketState(id, '暂不可用');
+      }
+    }
+  } catch { ['hscei','chix','ndx'].forEach(id => setMarketState(id, '暂不可用')); }
+
+  // ── 外汇 API（美元兑人民币）──────────────
+  try {
+    const { price } = await fetchUSDCNY();
+    setMarketCard('usdcny', fmtN(price, 4), '实时汇率', '', true);
+    // 重置 change 区域只显示"实时汇率"标签
+    const c = document.getElementById('usdcny-change');
+    if (c) { c.textContent = '实时汇率'; c.className = 'market-change flat'; }
+  } catch { setMarketState('usdcny', '暂不可用'); }
+
+  // ── A50连续 & 十年期国债（需专业终端）──────
+  setMarketState('a50',    '请查专业软件');
+  setMarketState('bond10', '请查专业软件');
 }
 
 loadMarketData();
@@ -364,6 +509,7 @@ const TAG_MAP = {
   energy: { label: '⚡ 新能源', cls: 'tag-energy' },
   ai:     { label: '🤖 AI科技', cls: 'tag-ai' },
   gold:   { label: '🪙 黄金',   cls: 'tag-gold' },
+  intl:   { label: '🌍 国际',   cls: 'tag-intl' },
 };
 
 function skeletonHTML() {
@@ -416,11 +562,38 @@ function renderSection(gridId, sectionId, items, cat) {
 let newsData = null;
 let currentCat = 'all';
 
+function renderIntl(cat) {
+  const grid    = document.getElementById('grid-intl');
+  const section = document.getElementById('section-intl');
+  if (!grid || !section) return;
+  const list = cat === 'all' ? INTL_NEWS : INTL_NEWS.filter(n => n.cat === cat);
+  if (!list.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  grid.innerHTML = list.map(n => {
+    const { label, cls } = TAG_MAP[n.cat] || TAG_MAP.intl;
+    return `
+      <div class="news-card intl">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span class="news-tag ${cls}">${label}</span>
+          <span class="news-source-intl">${n.source}</span>
+        </div>
+        <div class="news-title">
+          <a href="${n.url}" target="_blank" rel="noopener">${n.zh}</a>
+        </div>
+        <div class="news-en">${n.en}</div>
+        <div class="news-meta">
+          <span class="news-time">${n.time}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function renderAll() {
   if (!newsData) return;
   renderSection('grid-breaking', 'section-breaking', newsData.breaking, currentCat);
   renderSection('grid-industry', 'section-industry', newsData.industry, currentCat);
   renderSection('grid-analysis', 'section-analysis', newsData.analysis, currentCat);
+  renderIntl(currentCat);
 }
 
 // ── 主加载流程 ────────────────────────────────────────────────

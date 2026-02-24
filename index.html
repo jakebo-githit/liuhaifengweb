@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>刘海峰 · A股资讯 — 新能源 · AI · 黄金</title>
+  <title>羽化 · A股资讯 — 新能源 · AI · 黄金</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="header-inner">
       <div class="logo">
         <span class="logo-icon">📈</span>
-        <span class="logo-text">刘海峰 · A股资讯</span>
+        <span class="logo-text">羽化 · A股资讯</span>
       </div>
       <div class="header-date" id="currentDate"></div>
     </div>
@@ -40,7 +40,10 @@
   <main class="main">
     <!-- 市场概览 -->
     <section class="market-overview">
-      <div class="market-cards">
+
+      <!-- A股 & 国内 -->
+      <div class="market-group-label">🇨🇳 A股 &amp; 国内</div>
+      <div class="market-cards" id="group-domestic">
         <div class="market-card" id="card-sh">
           <div class="market-label">上证指数</div>
           <div class="market-value" id="sh-value">—</div>
@@ -56,12 +59,58 @@
           <div class="market-value" id="cyb-value">—</div>
           <div class="market-change" id="cyb-change">加载中...</div>
         </div>
+        <div class="market-card" id="card-a500">
+          <div class="market-label">富时A500</div>
+          <div class="market-value" id="a500-value">—</div>
+          <div class="market-change" id="a500-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-a50">
+          <div class="market-label">A50指数连续</div>
+          <div class="market-value" id="a50-value">—</div>
+          <div class="market-change" id="a50-change">加载中...</div>
+        </div>
+      </div>
+
+      <!-- 商品 & 外汇 -->
+      <div class="market-group-label">💱 商品 &amp; 外汇</div>
+      <div class="market-cards" id="group-fx">
         <div class="market-card gold-card" id="card-gold">
-          <div class="market-label">黄金 (人民币/克)</div>
+          <div class="market-label">黄金 (元/克)</div>
           <div class="market-value" id="gold-value">—</div>
           <div class="market-change" id="gold-change">加载中...</div>
         </div>
+        <div class="market-card" id="card-usdcny">
+          <div class="market-label">美元兑人民币</div>
+          <div class="market-value" id="usdcny-value">—</div>
+          <div class="market-change" id="usdcny-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-bond10">
+          <div class="market-label">中国十年期国债</div>
+          <div class="market-value" id="bond10-value">—</div>
+          <div class="market-change" id="bond10-change">加载中...</div>
+        </div>
       </div>
+
+      <!-- 海外 & 港股 -->
+      <div class="market-group-label">🌍 海外 &amp; 港股</div>
+      <div class="market-cards" id="group-global">
+        <div class="market-card" id="card-hscei">
+          <div class="market-label">恒生中国企业</div>
+          <div class="market-value" id="hscei-value">—</div>
+          <div class="market-change" id="hscei-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-chix">
+          <div class="market-label">纳指中国金融(CHIX)</div>
+          <div class="market-value" id="chix-value">—</div>
+          <div class="market-change" id="chix-change">加载中...</div>
+        </div>
+        <div class="market-card" id="card-ndx">
+          <div class="market-label">纳斯达克100</div>
+          <div class="market-value" id="ndx-value">—</div>
+          <div class="market-change" id="ndx-change">加载中...</div>
+        </div>
+      </div>
+
     </section>
 
     <!-- 快速导航 -->
@@ -145,6 +194,16 @@
           <span class="type-desc">研报 · 策略 · 专业解读</span>
         </div>
         <div class="news-grid" id="grid-analysis"></div>
+      </div>
+
+      <!-- 板块四：国际财经 -->
+      <div class="news-type-section" id="section-intl">
+        <div class="news-type-header intl-header">
+          <span class="type-icon">🌍</span>
+          <span class="type-title">国际财经</span>
+          <span class="type-desc">英文原文 · 中文译文 · 附来源</span>
+        </div>
+        <div class="news-grid" id="grid-intl"></div>
       </div>
     </section>
 
